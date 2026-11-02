@@ -6,7 +6,8 @@
     "dev": "next dev --turbopack",
     "build": "next build --turbopack",
     "start": "next start",
-    "lint": "eslint"
+    "lint": "eslint",
+    "seed": "node scripts/seed.mts"
   },
   "dependencies": {
     "@trpc/client": "^11.22.1",
