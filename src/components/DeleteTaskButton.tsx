@@ -1,6 +1,7 @@
 "use client";
 
 import { useState } from "react";
+import { Spinner } from "@/components/Spinner";
 import { getErrorMessage } from "@/lib/errors";
 import { trpcClient } from "@/trpc/client";
 
@@ -37,8 +38,9 @@ export function DeleteTaskButton({
       type="button"
       onClick={handleDelete}
       disabled={isDeleting}
-      className="rounded-md border border-red-600/40 px-2 py-1 text-sm text-red-600 hover:bg-red-600/10 disabled:opacity-50"
+      className="inline-flex enabled:cursor-pointer items-center gap-1.5 rounded-md border border-red-600/40 px-2 py-1 text-sm text-red-600 hover:bg-red-600/10 disabled:opacity-50"
     >
+      {isDeleting && <Spinner size="sm" />}
       {isDeleting ? "Deleting…" : "Delete"}
     </button>
   );

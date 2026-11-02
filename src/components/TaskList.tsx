@@ -5,6 +5,7 @@ import {
   FeedbackMessage,
   type FeedbackMessageProps,
 } from "@/components/FeedbackMessage";
+import { Spinner } from "@/components/Spinner";
 import { TaskCard } from "@/components/TaskCard";
 import { useInfiniteTasks, type TaskPage } from "@/hooks/useInfiniteTasks";
 import { useOnVisible } from "@/hooks/useOnVisible";
@@ -77,8 +78,17 @@ export function TaskList({ initialPage, initialFeedback }: TaskListProps) {
       )}
 
       {hasMore && (
-        <div ref={sentinelRef} className="py-6 text-center text-sm opacity-60">
-          {isLoadingMore ? "Loading more tasks…" : null}
+        <div
+          ref={sentinelRef}
+          role="status"
+          className="flex min-h-16 items-center justify-center gap-2 text-sm opacity-60"
+        >
+          {isLoadingMore && (
+            <>
+              <Spinner size="sm" />
+              Loading more tasks…
+            </>
+          )}
         </div>
       )}
     </>

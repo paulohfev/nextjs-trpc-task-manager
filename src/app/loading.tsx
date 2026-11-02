@@ -1,3 +1,13 @@
+import { Spinner } from "@/components/Spinner";
+
 export default function Loading() {
-  return <p className="py-8 text-center text-sm opacity-70">Loading…</p>;
+  return (
+    <div
+      role="status"
+      className="flex items-center justify-center gap-2 py-8 text-sm opacity-70"
+    >
+      <Spinner />
+      Loading…
+    </div>
+  );
 }

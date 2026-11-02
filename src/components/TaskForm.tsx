@@ -2,6 +2,7 @@
 
 import Link from "next/link";
 import { FeedbackMessage } from "@/components/FeedbackMessage";
+import { Spinner } from "@/components/Spinner";
 import { useTaskForm } from "@/hooks/useTaskForm";
 import type { Task } from "@/lib/types";
 
@@ -77,8 +78,9 @@ export function TaskForm({ initialTask }: TaskFormProps) {
         <button
           type="submit"
           disabled={isSubmitting}
-          className="rounded-md bg-foreground px-4 py-2 text-sm text-background hover:opacity-90 disabled:opacity-60"
+          className="inline-flex enabled:cursor-pointer items-center gap-2 rounded-md bg-foreground px-4 py-2 text-sm text-background hover:opacity-90 disabled:opacity-60"
         >
+          {isSubmitting && <Spinner size="sm" />}
           {isSubmitting ? "Saving…" : submitLabel}
         </button>
         <Link
