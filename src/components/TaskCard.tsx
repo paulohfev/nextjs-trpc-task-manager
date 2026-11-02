@@ -4,9 +4,11 @@ import type { Task } from "@/lib/types";
 
 export type TaskCardProps = {
   task: Task;
+  onDeleted: (taskId: string) => void;
+  onDeleteError: (message: string) => void;
 };
 
-export function TaskCard({ task }: TaskCardProps) {
+export function TaskCard({ task, onDeleted, onDeleteError }: TaskCardProps) {
   return (
     <li className="flex items-start justify-between gap-4 rounded-md border border-black/10 p-4 dark:border-white/15">
       <div className="min-w-0">
@@ -28,7 +30,12 @@ export function TaskCard({ task }: TaskCardProps) {
         >
           Edit
         </Link>
-        <DeleteTaskButton taskId={task.id} />
+        <DeleteTaskButton
+          taskId={task.id}
+          taskTitle={task.title}
+          onDeleted={onDeleted}
+          onError={onDeleteError}
+        />
       </div>
     </li>
   );

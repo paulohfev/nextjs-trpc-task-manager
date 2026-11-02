@@ -1,19 +1,35 @@
 "use client";
 
 import { useState } from "react";
+import { getErrorMessage } from "@/lib/errors";
+import { trpcClient } from "@/trpc/client";
 
 export type DeleteTaskButtonProps = {
   taskId: string;
+  taskTitle: string;
+  onDeleted: (taskId: string) => void;
+  onError: (message: string) => void;
 };
 
-export function DeleteTaskButton({ taskId }: DeleteTaskButtonProps) {
+export function DeleteTaskButton({
+  taskId,
+  taskTitle,
+  onDeleted,
+  onError,
+}: DeleteTaskButtonProps) {
   const [isDeleting, setIsDeleting] = useState(false);
 
-  // Placeholder: will call the tRPC delete mutation and report success/error.
   async function handleDelete() {
+    if (!window.confirm(`Delete "${taskTitle}"?`)) return;
+
     setIsDeleting(true);
-    console.info(`Delete task ${taskId} (not implemented yet)`);
-    setIsDeleting(false);
+    try {
+      await trpcClient.task.delete.mutate({ id: taskId });
+      onDeleted(taskId);
+    } catch (error) {
+      onError(getErrorMessage(error, "Failed to delete the task."));
+      setIsDeleting(false);
+    }
   }
 
   return (
