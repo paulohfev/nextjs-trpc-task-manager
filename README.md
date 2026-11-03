@@ -81,17 +81,38 @@ type Task = {
 };
 ```
 
+## Testing
+
+```bash
+npm test             # run every test once
+npm run test:watch   # re-run tests as files change
+```
+
+The suite uses [Jest](https://jestjs.io) and [React Testing Library](https://testing-library.com/docs/react-testing-library/intro/).
+
+- **Unit tests** sit next to the code they test, for example `src/components/TaskForm/TaskForm.test.tsx` and `src/server/taskStore.test.ts`.
+- **Integration tests** are in `src/test/integration/`. They cover the HTTP API, the task list page (server-rendered first page, infinite scroll, deleting) and the create/edit forms.
+
+Only outside dependencies are mocked: `next/navigation`, `window.confirm` and `IntersectionObserver`. The in-memory task store is emptied after each test.
+
 ## Project structure
 
 ```
 scripts/seed.mts           Seeds sample tasks through the tRPC API
+jest.config.mjs            Jest configuration (uses next/jest)
 src/
 ├── app/                   Pages, plus loading/error/not-found screens
 │   └── api/trpc/[trpc]/   tRPC HTTP endpoint
-├── components/            UI components (task list, form, toasts, …)
+├── components/            UI components. A component with tests gets its
+│   │                      own folder, holding the component and its test:
+│   ├── DeleteTaskButton/
+│   ├── TaskForm/
+│   └── Toast/             Toast and ToastProvider
 ├── hooks/                 Client hooks (infinite list, form, toasts, …)
 ├── lib/                   Shared types, Zod schemas, error helpers
 ├── server/                Backend: tRPC setup, routers, in-memory task store
+├── test/                  Test setup, helpers and integration tests
+│   └── integration/
 └── trpc/
     ├── client.ts          tRPC client for the browser
     └── server.ts          Server-side caller for Server Components
@@ -103,3 +124,4 @@ src/
 - [tRPC 11](https://trpc.io)
 - [Zod 4](https://zod.dev)
 - [Tailwind CSS 4](https://tailwindcss.com)
+- [Jest 30](https://jestjs.io) and [React Testing Library](https://testing-library.com)
