@@ -1,36 +1,103 @@
-This is a [Next.js](https://nextjs.org) project bootstrapped with [`create-next-app`](https://nextjs.org/docs/app/api-reference/cli/create-next-app).
+# Task Manager — Next.js + tRPC
 
-## Getting Started
+A simple task management app built with **Next.js 15** (App Router), **TypeScript** and **tRPC 11**. Tasks are kept in server memory, so there is no database to set up.
 
-First, run the development server:
+## Features
+
+- **CRUD over tRPC:** create, list, update and delete tasks.
+- **Validation:** Zod checks every input. A task can't be created without a title, and the form and the server share the same rules.
+- **Clear errors:** for example, updating or deleting a task that doesn't exist returns `NOT_FOUND`, and the form shows the message for each invalid field.
+- **Server-side rendering:** the first page of tasks is loaded on the server, so it's already in the HTML.
+- **Infinite scroll:** more tasks load as you scroll down.
+- **Loading and feedback states:** spinners while things load, toasts for success and error messages, and pages for errors and "not found".
+
+## Getting started
+
+**Requirements:** Node.js **22.18+** (24 recommended) and npm. The seed script runs as TypeScript directly in Node, which needs one of these versions.
 
 ```bash
+npm install
 npm run dev
-# or
-yarn dev
-# or
-pnpm dev
-# or
-bun dev
 ```
 
-Open [http://localhost:3000](http://localhost:3000) with your browser to see the result.
+Open [http://localhost:3000](http://localhost:3000).
 
-You can start editing the page by modifying `app/page.tsx`. The page auto-updates as you edit the file.
+The list starts empty. To fill it with sample data, leave the dev server running and run this in a second terminal:
 
-This project uses [`next/font`](https://nextjs.org/docs/app/building-your-application/optimizing/fonts) to automatically optimize and load [Geist](https://vercel.com/font), a new font family for Vercel.
+```bash
+npm run seed
+```
 
-## Learn More
+> **Note:** tasks only live in memory, so restarting the server clears them. Run `npm run seed` again after a restart.
 
-To learn more about Next.js, take a look at the following resources:
+## Scripts
 
-- [Next.js Documentation](https://nextjs.org/docs) - learn about Next.js features and API.
-- [Learn Next.js](https://nextjs.org/learn) - an interactive Next.js tutorial.
+| Command         | Description                                                                 |
+| --------------- | --------------------------------------------------------------------------- |
+| `npm run dev`   | Start the development server with Turbopack at `http://localhost:3000`.     |
+| `npm run build` | Build the app for production.                                               |
+| `npm run start` | Run the production build (run `npm run build` first).                       |
+| `npm run lint`  | Run ESLint.                                                                 |
+| `npm run seed`  | Add 25 sample tasks to the app running at `http://localhost:3000`.          |
 
-You can check out [the Next.js GitHub repository](https://github.com/vercel/next.js) - your feedback and contributions are welcome!
+To check types, run `npx tsc --noEmit`.
 
-## Deploy on Vercel
+## Pages
 
-The easiest way to deploy your Next.js app is to use the [Vercel Platform](https://vercel.com/new?utm_medium=default-template&filter=next.js&utm_source=create-next-app&utm_campaign=create-next-app-readme) from the creators of Next.js.
+| Route              | Description                                                     |
+| ------------------ | --------------------------------------------------------------- |
+| `/`                | Task list, first page rendered on the server, infinite scroll, delete. |
+| `/tasks/new`       | Form to create a task.                                          |
+| `/tasks/[id]/edit` | Form to edit a task. Unknown ids show a "Not found" page.       |
 
-Check out our [Next.js deployment documentation](https://nextjs.org/docs/app/building-your-application/deploying) for more details.
+## API
+
+The tRPC API is served at `/api/trpc`. Procedures, under the `task` router:
+
+| Procedure       | Type     | Input                                                   | Errors                    |
+| --------------- | -------- | ------------------------------------------------------- | ------------------------- |
+| `task.list`     | query    | `{ limit?: 1–50 (default 10), cursor?: string }`        | `BAD_REQUEST` (invalid cursor) |
+| `task.getById`  | query    | `{ id: string }`                                        | `NOT_FOUND`               |
+| `task.create`   | mutation | `{ title: string, description?: string }`               | `BAD_REQUEST` (validation) |
+| `task.update`   | mutation | `{ id: string, title?: string, description?: string }`  | `NOT_FOUND`, `BAD_REQUEST` |
+| `task.delete`   | mutation | `{ id: string }`                                        | `NOT_FOUND`               |
+
+Validation rules:
+- `title` is required. Surrounding spaces are removed, and it must be 1–200 characters.
+- `description` is optional, up to 2000 characters. On update, an empty string clears it.
+
+`task.list` returns `{ items, nextCursor }`, newest tasks first. To get the next page, send `nextCursor` back as `cursor`. It is `null` when there are no more tasks.
+
+A task looks like this:
+
+```ts
+type Task = {
+  id: string;           // UUID, generated by the server
+  title: string;
+  description?: string;
+  creationDate: string; // ISO 8601 timestamp
+};
+```
+
+## Project structure
+
+```
+scripts/seed.mts           Seeds sample tasks through the tRPC API
+src/
+├── app/                   Pages, plus loading/error/not-found screens
+│   └── api/trpc/[trpc]/   tRPC HTTP endpoint
+├── components/            UI components (task list, form, toasts, …)
+├── hooks/                 Client hooks (infinite list, form, toasts, …)
+├── lib/                   Shared types, Zod schemas, error helpers
+├── server/                Backend: tRPC setup, routers, in-memory task store
+└── trpc/
+    ├── client.ts          tRPC client for the browser
+    └── server.ts          Server-side caller for Server Components
+```
+
+## Tech stack
+
+- [Next.js 15](https://nextjs.org) (App Router, React 19)
+- [tRPC 11](https://trpc.io)
+- [Zod 4](https://zod.dev)
+- [Tailwind CSS 4](https://tailwindcss.com)
