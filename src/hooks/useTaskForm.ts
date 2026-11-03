@@ -1,6 +1,7 @@
 import { useRouter } from "next/navigation";
 import { useState, type FormEvent } from "react";
 import { z } from "zod";
+import { useToast } from "@/hooks/useToast";
 import { getErrorMessage, isTRPCClientError } from "@/lib/errors";
 import { createTaskSchema } from "@/lib/taskSchemas";
 import type { Task } from "@/lib/types";
@@ -21,6 +22,7 @@ function firstErrors(
 // Creates a new task, or updates `initialTask` when editing.
 export function useTaskForm(initialTask?: Task) {
   const router = useRouter();
+  const showToast = useToast();
   const [title, setTitle] = useState(initialTask?.title ?? "");
   const [description, setDescription] = useState(
     initialTask?.description ?? "",
@@ -50,11 +52,12 @@ export function useTaskForm(initialTask?: Task) {
           id: initialTask.id,
           ...parsed.data,
         });
-        router.push("/?status=updated");
+        showToast({ variant: "success", message: "Task updated." });
       } else {
         await trpcClient.task.create.mutate(parsed.data);
-        router.push("/?status=created");
+        showToast({ variant: "success", message: "Task created." });
       }
+      router.push("/");
       // Stay in the submitting state while navigating away.
     } catch (error) {
       const serverFieldErrors = isTRPCClientError(error)

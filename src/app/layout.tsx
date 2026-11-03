@@ -1,6 +1,7 @@
 import type { Metadata } from "next";
 import { Geist, Geist_Mono } from "next/font/google";
 import { Header } from "@/components/Header";
+import { ToastProvider } from "@/components/ToastProvider";
 import "./globals.css";
 
 const geistSans = Geist({
@@ -28,8 +29,10 @@ export default function RootLayout({
       <body
         className={`${geistSans.variable} ${geistMono.variable} min-h-screen antialiased`}
       >
-        <Header />
-        <main className="mx-auto max-w-3xl px-4 py-8">{children}</main>
+        <ToastProvider>
+          <Header />
+          <main className="mx-auto max-w-3xl px-4 py-8">{children}</main>
+        </ToastProvider>
       </body>
     </html>
   );

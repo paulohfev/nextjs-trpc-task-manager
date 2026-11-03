@@ -1,21 +1,33 @@
+import { StatusIcon } from "@/components/StatusIcon";
+import type { FeedbackVariant } from "@/lib/types";
+
 export type FeedbackMessageProps = {
-  variant: "success" | "error" | "info";
+  variant: FeedbackVariant;
   message: string;
+  // Optional control shown on the right, e.g. a "Try again" button.
+  action?: React.ReactNode;
 };
 
-const variantClasses: Record<FeedbackMessageProps["variant"], string> = {
-  success: "border-green-600/30 bg-green-600/10 text-green-700 dark:text-green-400",
-  error: "border-red-600/30 bg-red-600/10 text-red-700 dark:text-red-400",
-  info: "border-blue-600/30 bg-blue-600/10 text-blue-700 dark:text-blue-400",
+const variantClasses: Record<FeedbackVariant, string> = {
+  success:
+    "border-green-600/25 bg-green-600/5 text-green-800 dark:text-green-300",
+  error: "border-red-600/25 bg-red-600/5 text-red-800 dark:text-red-300",
 };
 
-export function FeedbackMessage({ variant, message }: FeedbackMessageProps) {
+// Inline message for errors that need to stay visible next to their context.
+export function FeedbackMessage({
+  variant,
+  message,
+  action,
+}: FeedbackMessageProps) {
   return (
     <div
       role={variant === "error" ? "alert" : "status"}
-      className={`rounded-md border px-3 py-2 text-sm ${variantClasses[variant]}`}
+      className={`flex items-center gap-3 rounded-lg border px-4 py-3 text-sm ${variantClasses[variant]}`}
     >
-      {message}
+      <StatusIcon variant={variant} />
+      <p className="min-w-0 flex-1">{message}</p>
+      {action}
     </div>
   );
 }

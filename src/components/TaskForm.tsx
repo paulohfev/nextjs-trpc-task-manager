@@ -3,6 +3,7 @@
 import Link from "next/link";
 import { FeedbackMessage } from "@/components/FeedbackMessage";
 import { Spinner } from "@/components/Spinner";
+import { StatusIcon } from "@/components/StatusIcon";
 import { useTaskForm } from "@/hooks/useTaskForm";
 import type { Task } from "@/lib/types";
 
@@ -41,10 +42,14 @@ export function TaskForm({ initialTask }: TaskFormProps) {
           disabled={isSubmitting}
           aria-invalid={fieldErrors.title ? true : undefined}
           aria-describedby={fieldErrors.title ? "title-error" : undefined}
-          className="rounded-md border border-black/20 bg-transparent px-3 py-2 disabled:opacity-60 dark:border-white/25"
+          className="rounded-md border border-black/20 bg-transparent px-3 py-2 disabled:opacity-60 aria-invalid:border-red-600 dark:border-white/25 dark:aria-invalid:border-red-400"
         />
         {fieldErrors.title && (
-          <p id="title-error" className="text-sm text-red-600">
+          <p
+            id="title-error"
+            className="flex items-center gap-1.5 text-sm text-red-600 dark:text-red-400"
+          >
+            <StatusIcon variant="error" className="size-4" />
             {fieldErrors.title}
           </p>
         )}
@@ -65,10 +70,14 @@ export function TaskForm({ initialTask }: TaskFormProps) {
           aria-describedby={
             fieldErrors.description ? "description-error" : undefined
           }
-          className="rounded-md border border-black/20 bg-transparent px-3 py-2 disabled:opacity-60 dark:border-white/25"
+          className="rounded-md border border-black/20 bg-transparent px-3 py-2 disabled:opacity-60 aria-invalid:border-red-600 dark:border-white/25 dark:aria-invalid:border-red-400"
         />
         {fieldErrors.description && (
-          <p id="description-error" className="text-sm text-red-600">
+          <p
+            id="description-error"
+            className="flex items-center gap-1.5 text-sm text-red-600 dark:text-red-400"
+          >
+            <StatusIcon variant="error" className="size-4" />
             {fieldErrors.description}
           </p>
         )}

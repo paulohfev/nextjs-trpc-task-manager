@@ -4,3 +4,5 @@ export type Task = {
   description?: string;
   creationDate: string;
 };
+
+export type FeedbackVariant = "success" | "error";
