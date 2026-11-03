@@ -40,7 +40,7 @@ function decodeCursor(cursor: string): TaskSortKey | null {
   };
 }
 
-class TaskStore {
+export class TaskStore {
   private tasks = new Map<string, Task>();
 
   list({ limit, cursor }: ListTasksOptions): ListTasksResult | null {

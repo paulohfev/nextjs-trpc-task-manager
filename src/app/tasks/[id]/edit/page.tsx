@@ -1,6 +1,6 @@
 import { TRPCError } from "@trpc/server";
 import { notFound } from "next/navigation";
-import { TaskForm } from "@/components/TaskForm";
+import { TaskForm } from "@/components/TaskForm/TaskForm";
 import { caller } from "@/trpc/server";
 
 type EditTaskPageProps = {

@@ -38,6 +38,8 @@ npm run seed
 | `npm run build` | Build the app for production.                                               |
 | `npm run start` | Run the production build (run `npm run build` first).                       |
 | `npm run lint`  | Run ESLint.                                                                 |
+| `npm test`      | Run the unit and integration tests once (Jest).                             |
+| `npm run test:watch` | Run the tests in watch mode.                                           |
 | `npm run seed`  | Add 25 sample tasks to the app running at `http://localhost:3000`.          |
 
 To check types, run `npx tsc --noEmit`.

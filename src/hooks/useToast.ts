@@ -1,5 +1,5 @@
 import { useContext } from "react";
-import { ToastContext } from "@/components/ToastProvider";
+import { ToastContext } from "@/components/Toast/ToastProvider";
 
 // Returns `showToast({ variant, message })` for short-lived status messages.
 export function useToast() {

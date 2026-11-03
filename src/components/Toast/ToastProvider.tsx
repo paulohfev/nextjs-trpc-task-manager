@@ -1,7 +1,7 @@
 "use client";
 
 import { createContext, useCallback, useRef, useState } from "react";
-import { Toast } from "@/components/Toast";
+import { Toast } from "@/components/Toast/Toast";
 import type { FeedbackVariant } from "@/lib/types";
 
 export type ToastOptions = {

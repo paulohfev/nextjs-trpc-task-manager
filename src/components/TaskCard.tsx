@@ -1,5 +1,5 @@
 import Link from "next/link";
-import { DeleteTaskButton } from "@/components/DeleteTaskButton";
+import { DeleteTaskButton } from "@/components/DeleteTaskButton/DeleteTaskButton";
 import type { Task } from "@/lib/types";
 
 export type TaskCardProps = {
