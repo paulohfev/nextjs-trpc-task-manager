@@ -93,7 +93,7 @@ The suite uses [Jest](https://jestjs.io) and [React Testing Library](https://tes
 - **Unit tests** sit next to the code they test, for example `src/components/TaskForm/TaskForm.test.tsx` and `src/server/taskStore.test.ts`.
 - **Integration tests** are in `src/test/integration/`. They cover the HTTP API, the task list page (server-rendered first page, infinite scroll, deleting) and the create/edit forms.
 
-Only outside dependencies are mocked: `next/navigation`, `window.confirm` and `IntersectionObserver`. The in-memory task store is emptied after each test.
+Only outside dependencies are mocked: `next/navigation` and `IntersectionObserver`. jsdom also lacks the `<dialog>` element's `showModal()` and `close()` methods, so the test setup adds simple versions of them. The in-memory task store is emptied after each test.
 
 ## Project structure
 
@@ -105,6 +105,7 @@ src/
 │   └── api/trpc/[trpc]/   tRPC HTTP endpoint
 ├── components/            UI components. A component with tests gets its
 │   │                      own folder, holding the component and its test:
+│   ├── ConfirmDialog/
 │   ├── DeleteTaskButton/
 │   ├── TaskForm/
 │   └── Toast/             Toast and ToastProvider

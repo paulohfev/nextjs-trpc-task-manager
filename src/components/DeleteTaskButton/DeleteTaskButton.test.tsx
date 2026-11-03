@@ -1,4 +1,4 @@
-import { render, screen, waitFor } from "@testing-library/react";
+import { render, screen, waitFor, within } from "@testing-library/react";
 import userEvent from "@testing-library/user-event";
 import { DeleteTaskButton } from "@/components/DeleteTaskButton/DeleteTaskButton";
 import { taskStore } from "@/server/taskStore";
@@ -20,24 +20,38 @@ describe("DeleteTaskButton", () => {
     return screen.getByRole("button", { name: "Delete" });
   }
 
-  beforeEach(() => {
-    jest.spyOn(window, "confirm").mockReturnValue(true);
-  });
+  async function openDialog(button: HTMLElement) {
+    await userEvent.click(button);
+    return screen.getByRole("dialog", { name: "Delete task?" });
+  }
 
-  it("should ask for confirmation with the task title when clicked", async () => {
+  async function confirmDeletion(button: HTMLElement) {
+    const dialog = await openDialog(button);
+    await userEvent.click(
+      within(dialog).getByRole("button", { name: "Delete task" }),
+    );
+  }
+
+  it("should ask for confirmation in a dialog naming the task when clicked", async () => {
     const [task] = seedTasks(1);
 
-    await userEvent.click(renderButton(task.id, task.title));
+    const dialog = await openDialog(renderButton(task.id, task.title));
 
-    expect(window.confirm).toHaveBeenCalledWith('Delete "Task 1"?');
+    expect(dialog).toHaveAccessibleDescription(
+      "Task 1 will be permanently deleted.",
+    );
+    expect(fetch).not.toHaveBeenCalled();
   });
 
-  it("should not delete the task when the user cancels the confirmation", async () => {
-    jest.mocked(window.confirm).mockReturnValue(false);
+  it("should close the dialog, keep the task and refocus the button when the user cancels", async () => {
     const [task] = seedTasks(1);
+    const button = renderButton(task.id);
+    const dialog = await openDialog(button);
 
-    await userEvent.click(renderButton(task.id));
+    await userEvent.click(within(dialog).getByRole("button", { name: "Cancel" }));
 
+    expect(screen.queryByRole("dialog")).not.toBeInTheDocument();
+    expect(button).toHaveFocus();
     expect(fetch).not.toHaveBeenCalled();
     expect(onDeleted).not.toHaveBeenCalled();
     expect(taskStore.getById(task.id)).toEqual(task);
@@ -46,9 +60,10 @@ describe("DeleteTaskButton", () => {
   it("should delete the task and report it when the user confirms", async () => {
     const [task] = seedTasks(1);
 
-    await userEvent.click(renderButton(task.id));
+    await confirmDeletion(renderButton(task.id));
 
     await waitFor(() => expect(onDeleted).toHaveBeenCalledWith(task.id));
+    expect(screen.queryByRole("dialog")).not.toBeInTheDocument();
     expect(taskStore.getById(task.id)).toBeUndefined();
     expect(onError).not.toHaveBeenCalled();
   });
@@ -57,13 +72,13 @@ describe("DeleteTaskButton", () => {
     jest.mocked(fetch).mockReturnValue(new Promise(() => {}));
     const [task] = seedTasks(1);
 
-    await userEvent.click(renderButton(task.id));
+    await confirmDeletion(renderButton(task.id));
 
     expect(screen.getByRole("button", { name: "Deleting…" })).toBeDisabled();
   });
 
   it("should report the server's message and re-enable the button when the task does not exist", async () => {
-    await userEvent.click(renderButton("missing"));
+    await confirmDeletion(renderButton("missing"));
 
     await waitFor(() =>
       expect(onError).toHaveBeenCalledWith('Task with id "missing" was not found.'),
@@ -76,7 +91,7 @@ describe("DeleteTaskButton", () => {
     jest.mocked(fetch).mockRejectedValue(new TypeError("Failed to fetch"));
     const [task] = seedTasks(1);
 
-    await userEvent.click(renderButton(task.id));
+    await confirmDeletion(renderButton(task.id));
 
     await waitFor(() =>
       expect(onError).toHaveBeenCalledWith(

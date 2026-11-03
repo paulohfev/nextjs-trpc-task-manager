@@ -23,11 +23,16 @@ function getTaskItem(title: string) {
   return item;
 }
 
-describe("Tasks page", () => {
-  beforeEach(() => {
-    jest.spyOn(window, "confirm").mockReturnValue(true);
-  });
+// Clicks the task's Delete button, then answers the confirmation dialog.
+async function deleteTask(title: string, answer: "Delete task" | "Cancel") {
+  await userEvent.click(
+    within(getTaskItem(title)).getByRole("button", { name: "Delete" }),
+  );
+  const dialog = screen.getByRole("dialog", { name: "Delete task?" });
+  await userEvent.click(within(dialog).getByRole("button", { name: answer }));
+}
 
+describe("Tasks page", () => {
   describe("listing", () => {
     it("should render the first 10 tasks, newest first, when the page loads", async () => {
       seedTasks(15);
@@ -95,9 +100,7 @@ describe("Tasks page", () => {
       seedTasks(3);
       await renderTasksPage();
 
-      await userEvent.click(
-        within(getTaskItem("Task 2")).getByRole("button", { name: "Delete" }),
-      );
+      await deleteTask("Task 2", "Delete task");
 
       await waitFor(() => expect(getTaskTitles()).toEqual(["Task 3", "Task 1"]));
       expect(screen.getByText("Task deleted.")).toBeInTheDocument();
@@ -105,14 +108,12 @@ describe("Tasks page", () => {
     });
 
     it("should keep the task when the user cancels the confirmation", async () => {
-      jest.mocked(window.confirm).mockReturnValue(false);
       seedTasks(2);
       await renderTasksPage();
 
-      await userEvent.click(
-        within(getTaskItem("Task 2")).getByRole("button", { name: "Delete" }),
-      );
+      await deleteTask("Task 2", "Cancel");
 
+      expect(screen.queryByRole("dialog")).not.toBeInTheDocument();
       expect(getTaskTitles()).toEqual(["Task 2", "Task 1"]);
       expect(fetch).not.toHaveBeenCalled();
     });
@@ -122,7 +123,7 @@ describe("Tasks page", () => {
       await renderTasksPage();
       taskStore.delete(task.id);
 
-      await userEvent.click(screen.getByRole("button", { name: "Delete" }));
+      await deleteTask("Task 1", "Delete task");
 
       expect(await screen.findByRole("alert")).toHaveTextContent(
         `Task with id "${task.id}" was not found.`,

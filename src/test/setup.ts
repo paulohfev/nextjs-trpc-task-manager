@@ -7,6 +7,14 @@ import {
 } from "@/test/intersectionObserver";
 import { clearTasks } from "@/test/tasks";
 
+// jsdom doesn't implement <dialog>'s modal methods; mimic their open state.
+HTMLDialogElement.prototype.showModal ??= function (this: HTMLDialogElement) {
+  this.setAttribute("open", "");
+};
+HTMLDialogElement.prototype.close ??= function (this: HTMLDialogElement) {
+  this.removeAttribute("open");
+};
+
 const realFetch = globalThis.fetch;
 
 beforeEach(() => {
